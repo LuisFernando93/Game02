@@ -5,6 +5,8 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 import br.com.inarigames.entities.Enemy;
+import br.com.inarigames.entities.Fruit;
+import br.com.inarigames.entities.PowerUp;
 import br.com.inarigames.main.Game;
 
 public class World {
@@ -44,7 +46,10 @@ public class World {
 					tiles[i][j] = new FloorTile(i*TILE_SIZE, j*TILE_SIZE);
 					switch (pixelAtual) {
 						case 0xFF000000:
-							//preto - floor
+							//preto - floor e fruta
+							Fruit fruit = new Fruit(i*TILE_SIZE, j*TILE_SIZE, 32, 32);
+							Game.entities.add(fruit);
+							Game.incrementFruitCountTotal();
 							break;
 					
 						case 0xFFFFFFFF:
@@ -56,6 +61,12 @@ public class World {
 							//azul - player
 							Game.player.setX(i*TILE_SIZE);
 							Game.player.setY(j*TILE_SIZE);
+							break;
+						
+						case 0xFFFFFF00:
+							//amarelo - power-up
+							PowerUp powerUp = new PowerUp(i*TILE_SIZE, j*TILE_SIZE, 32, 32);
+							Game.entities.add(powerUp);
 							break;
 							
 						case 0xFFFF0000:

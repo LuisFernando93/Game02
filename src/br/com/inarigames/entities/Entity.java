@@ -3,17 +3,35 @@ package br.com.inarigames.entities;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.Comparator;
 
 import br.com.inarigames.main.Game;
 import br.com.inarigames.world.Camera;
 
 public class Entity {
 
-	protected static BufferedImage PLAYER_EN = Game.spritesheet.getSprite(2*32, 0, 32, 32);
+	protected static BufferedImage PLAYER_RIGHT_EN = Game.spritesheet.getSprite(2*32, 0, 32, 32);
+	protected static BufferedImage PLAYER_LEFT_EN = Game.spritesheet.getSprite(2*32, 32, 32, 32);
+	protected static BufferedImage PLAYER_UP_EN = Game.spritesheet.getSprite(2*32, 2*32, 32, 32);
+	protected static BufferedImage PLAYER_DOWN_EN = Game.spritesheet.getSprite(2*32, 3*32, 32, 32);
+	protected static BufferedImage POWERUP_DRAGONFRUIT_EN = Game.spritesheet.getSprite(0, 32, 32, 32);
+	protected static BufferedImage FRUIT_STRAWBERRY_EN = Game.spritesheet.getSprite(0, 2*32, 32, 32);
 	
 	protected double x, y;
 	protected BufferedImage sprite;
 	protected int depth, width, height;
+	
+	public static Comparator<Entity> entitySorter = new Comparator<Entity>() {
+		
+		@Override
+		public int compare(Entity e0, Entity e1) {
+			if (e0.getDepth() < e1.getDepth())
+				return -1;
+			if (e0.getDepth() > e1.getDepth())
+				return +1;
+			return 0;
+		}
+	};
 	
 	public Entity(double x, double y, int width, int height) {
 		this.depth = 0;

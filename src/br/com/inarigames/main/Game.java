@@ -3,12 +3,14 @@ package br.com.inarigames.main;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -47,6 +49,8 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	private static String gameState = "NORMAL";
 	
 	private static int level = 1;
+	private static int fruitCountTotal = 0;
+	private static int fruitCount = 0;
 
 	public Game() {
 		
@@ -62,6 +66,14 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		entities.add(player);
 		
 		world = new World("/level" + level + ".png");
+	}
+	
+	public static void incrementFruitCountTotal() {
+		fruitCountTotal++;
+	}
+	
+	public static void incrementFruitCount() {
+		fruitCount++;
 	}
 	
 	public static void main(String[] args) {
@@ -125,6 +137,10 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		graphics.fillRect(0, 0, WIDTH, HEIGHT);
 		
 		world.render(graphics);
+		Collections.sort(entities, Entity.entitySorter);
+		for (Entity entity : entities) {
+			entity.render(graphics);
+		}
 		for (Entity entity : entities) {
 			entity.render(graphics);
 		}
@@ -132,7 +148,10 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		graphics.dispose();
 		graphics = bs.getDrawGraphics();
 		graphics.drawImage(image, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
-		
+		graphics.setColor(Color.white);
+		graphics.setFont(new Font("arial", Font.BOLD, 18));
+		String score = "Morangos: " + fruitCount + "/" + fruitCountTotal;
+		graphics.drawString(score, 30, 30);
 		bs.show();
 	}
 
