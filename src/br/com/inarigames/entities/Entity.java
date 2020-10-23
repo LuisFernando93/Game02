@@ -16,6 +16,10 @@ public class Entity {
 	protected static BufferedImage PLAYER_DOWN_EN = Game.spritesheet.getSprite(2*32, 3*32, 32, 32);
 	protected static BufferedImage POWERUP_DRAGONFRUIT_EN = Game.spritesheet.getSprite(0, 32, 32, 32);
 	protected static BufferedImage FRUIT_STRAWBERRY_EN = Game.spritesheet.getSprite(0, 2*32, 32, 32);
+	protected static BufferedImage ENEMY_RIGHT_EN = Game.spritesheet.getSprite(6*32, 0, 32, 32);
+	protected static BufferedImage ENEMY_LEFT_EN = Game.spritesheet.getSprite(7*32, 0, 32, 32);
+	protected static BufferedImage ENEMY_UP_EN = Game.spritesheet.getSprite(8*32, 0, 32, 32);
+	protected static BufferedImage ENEMY_DOWN_EN = Game.spritesheet.getSprite(9*32, 0, 32, 32);
 	
 	protected double x, y;
 	protected BufferedImage sprite;

@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JFrame;
 
@@ -31,6 +32,7 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	private Thread thread;
 	private boolean isRunning = false;
 	private double amountOfUpdates = 60.0;
+	public static Random random;
 	
 	public static final int WIDTH = 480;
 	public static final int HEIGHT = 640;
@@ -64,7 +66,7 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		enemies = new ArrayList<Enemy>();
 		player = new Player(0, 0, 32, 32);
 		entities.add(player);
-		
+		random = new Random();
 		world = new World("/level" + level + ".png");
 	}
 	
