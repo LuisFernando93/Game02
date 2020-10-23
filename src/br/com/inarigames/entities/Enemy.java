@@ -119,7 +119,7 @@ public class Enemy extends Entity {
 	}
 	
 	public void update() {
-		checkIfMove();
+		//checkIfMove();
 		checkIfAttack();
 		checkLife();
 	}

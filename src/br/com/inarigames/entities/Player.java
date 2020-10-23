@@ -13,17 +13,25 @@ public class Player extends Entity {
 	
 	private int dir;
 	private int right_dir = 1, left_dir = 2, up_dir = 3, down_dir = 4;
-	private boolean right, left, up, down;
-	private BufferedImage spriteRight, spriteLeft, spriteUp, spriteDown;
+	private boolean right, left, up, down; 
+	private boolean isOpening = true, moved = false;
+	private BufferedImage[] rightPlayer, leftPlayer, upPlayer, downPlayer;
+	private int frames = 0, maxFrames = 5, imageIndex = 0, maxIndex = 3; 
 
 	public Player(double x, double y, int width, int height) {
 		super(x, y, width, height);
 		this.depth = 2;
-		this.spriteRight = Entity.PLAYER_RIGHT_EN;
-		this.spriteLeft = Entity.PLAYER_LEFT_EN;
-		this.spriteUp = Entity.PLAYER_UP_EN;
-		this.spriteDown = Entity.PLAYER_DOWN_EN;
 		dir = right_dir;
+		rightPlayer = new BufferedImage[4];
+		leftPlayer = new BufferedImage[4];
+		upPlayer = new BufferedImage[4];
+		downPlayer = new BufferedImage[4];
+		for (int i = 0; i < 4; i++) {
+			rightPlayer[i] = Game.spritesheet.getSprite(64 + (32*i), 0, 32, 32);
+			leftPlayer[i] = Game.spritesheet.getSprite(64 + (32*i),32, 32, 32);
+			upPlayer[i] = Game.spritesheet.getSprite(64 + (32*i), 64, 32, 32);
+			downPlayer[i] = Game.spritesheet.getSprite(64 + (32*i), 96, 32, 32);
+		}
 	}
 	
 	public void setRight(boolean right) {
@@ -47,20 +55,50 @@ public class Player extends Entity {
 		if(right && (this.x + speed + this.width <= World.getWidth()*World.TILE_SIZE) && World.isFree(this.getX()+speed, this.getY())) {
 			dir = right_dir;
 			x+=speed;
+			moved = true;
 		}
 		if(left && (x - speed >= 0) && World.isFree(this.getX()-speed, this.getY())) {
 			dir = left_dir;
 			x-=speed;
+			moved = true;
 		}
 		if(up && (y - speed >= 0) && World.isFree(this.getX(), this.getY()-speed)) {
 			dir = up_dir;
 			y-=speed;
+			moved = true;
 		}
 		if(down && (this.y + speed + this.height <= World.getHeight()*World.TILE_SIZE) && World.isFree(this.getX(), this.getY()+speed)) {
 			dir = down_dir;
 			y+=speed;
+			moved = true;
 		}
 		
+		if (isOpening) {
+			if(moved) {
+				frames++;
+				if (frames == maxFrames) {
+					frames = 0;
+					imageIndex++;
+					if (imageIndex == maxIndex) {
+						imageIndex--;
+						isOpening = false;
+					}
+				}
+				moved = false;
+			}
+		} else {
+			if(moved) {
+				frames++;
+				if (frames == maxFrames) {
+					frames = 0;
+					imageIndex--;
+					if (imageIndex == 0) {
+						isOpening = true;
+					}
+				}
+				moved = false;
+			}
+		}
 	}
 	
 	private void checkIfEatFruit() {
@@ -101,13 +139,13 @@ public class Player extends Entity {
 	
 	public void render(Graphics graphics) {
 		if (dir == right_dir) {
-			graphics.drawImage(spriteRight, Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
+			graphics.drawImage(rightPlayer[imageIndex], Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
 		} else if (dir == left_dir) {
-			graphics.drawImage(spriteLeft, Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
+			graphics.drawImage(leftPlayer[imageIndex], Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
 		} else if (dir == up_dir) {
-			graphics.drawImage(spriteUp, Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
+			graphics.drawImage(upPlayer[imageIndex], Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
 		} else if (dir == down_dir) {
-			graphics.drawImage(spriteDown, Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
+			graphics.drawImage(downPlayer[imageIndex], Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
 		}
 	}
 	
