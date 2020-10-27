@@ -18,9 +18,13 @@ public class Enemy extends Entity {
 	private int right_dir = 0, left_dir = 1, up_dir = 2, down_dir = 3;
 	private BufferedImage spriteRight, spriteLeft, spriteUp, spriteDown;
 	private int dir = Game.random.nextInt(4);
-	private int maskx = 0, masky = 0, maskw = 32, maskh = 32;
+	private int maskx = 5, masky = 3, maskw = 23, maskh = 26;
 	private int speed = 1;
 	private int life = 1;
+	private BufferedImage[] vulnerableEnemy, vulnerableEnemyWhite;
+	private int frames = 0, maxFrames = 12, imageIndex = 0, maxIndex = 3; 
+	private int blinkFrames = 0, maxBlinkFrames = 20;
+	private boolean vulnerableWhite = false;
 	
 	private List<Node> path;
 	
@@ -31,6 +35,14 @@ public class Enemy extends Entity {
 		this.spriteLeft = Entity.ENEMY_LEFT_EN;
 		this.spriteUp = Entity.ENEMY_UP_EN;
 		this.spriteDown = Entity.ENEMY_DOWN_EN;
+		vulnerableEnemy = new BufferedImage[4];
+		vulnerableEnemyWhite = new BufferedImage[4];
+		
+		for (int i = 0; i < 4; i++) {
+			vulnerableEnemy[i] = Game.spritesheet.getSprite(6*32 + (32*i), 32, 32, 32);
+			vulnerableEnemyWhite[i] = Game.spritesheet.getSprite(6*32 + (32*i), 64, 32, 32);
+		}
+		
 	}
 
 	public boolean isColliding(int xnext, int ynext) {
@@ -61,20 +73,17 @@ public class Enemy extends Entity {
 		if(path != null) {
 			if (path.size() > 0) {
 				Vector2i target = path.get(path.size() - 1).getTile();
-				if (this.x < target.getX() * World.TILE_SIZE) {
+				if (this.x < target.getX() * World.TILE_SIZE && !isColliding(this.getX() + 1, this.getY()) && World.isFree(this.getX()+1, this.getY())) {
 					dir = right_dir;
 					this.x += speed;
-				}
-				if (this.x > target.getX() * World.TILE_SIZE) {
+				} else if (this.x > target.getX() * World.TILE_SIZE && !isColliding(this.getX() - 1, this.getY()) && World.isFree(this.getX()-1, this.getY())) {
 					dir = left_dir;
 					this.x -= speed;
-				}
-				if (this.y < target.getY() * World.TILE_SIZE) {
-					dir = up_dir;
-					this.y += speed;
-				}
-				if (this.y > target.getY() * World.TILE_SIZE) {
+				} else if (this.y < target.getY() * World.TILE_SIZE && !isColliding(this.getX(), this.getY()+1) && World.isFree(this.getX(), this.getY()+1)) {
 					dir = down_dir;
+					this.y += speed;
+				} else if (this.y > target.getY() * World.TILE_SIZE && !isColliding(this.getX(), this.getY()-1) && World.isFree(this.getX(), this.getY()-1)) {
+					dir = up_dir;
 					this.y -= speed;
 				}
 				
@@ -95,20 +104,22 @@ public class Enemy extends Entity {
 			followPath(path);
 		}
 		if (new Random().nextInt(100) < 10) {
-			Vector2i start = new Vector2i(this.getX()/16, this.getY()/16);
-			Vector2i end = new Vector2i(Game.player.getX()/16, Game.player.getY()/16);
+			Vector2i start = new Vector2i(this.getX()/32, this.getY()/32);
+			Vector2i end = new Vector2i(Game.player.getX()/32, Game.player.getY()/32);
 			path = AStar.findPath(Game.world, start, end);
 		}
 		
 	}
 	
-	private void checkIfMove() {
-		moveAStar();
-	}
-	
 	private void checkIfAttack() {
 		if(isCollidingWithPlayer()) {
-			//atacar
+			if (Game.isAttackMode()) {
+				this.life--;
+			} else {
+				//atacar
+				System.out.println("atacar");
+			}
+			
 		}
 	}
 	
@@ -118,14 +129,7 @@ public class Enemy extends Entity {
 		}
 	}
 	
-	public void update() {
-		//checkIfMove();
-		checkIfAttack();
-		checkLife();
-	}
-	
-	public void render(Graphics graphics) {
-		
+	private void regularAnimation(Graphics graphics) {
 		if (dir == right_dir) {
 			graphics.drawImage(spriteRight, Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
 		} else if (dir == left_dir) {
@@ -135,8 +139,50 @@ public class Enemy extends Entity {
 		} else if (dir == down_dir) {
 			graphics.drawImage(spriteDown, Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
 		}
+	}
+	
+	private void vulnerableAnimation(Graphics graphics) {
 		
+		if (!vulnerableWhite) {
+			graphics.drawImage(vulnerableEnemy[imageIndex], Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
+		} else graphics.drawImage(vulnerableEnemyWhite[imageIndex], Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
 		
+		if (Game.isBlankState()) {
+			blinkFrames++;
+			if (blinkFrames == maxBlinkFrames) {
+				blinkFrames = 0;
+				if (vulnerableWhite == false) {
+					vulnerableWhite = true;
+				} else vulnerableWhite = false;
+				
+			}
+		}
+		frames++;
+		if (frames == maxFrames) {
+			frames = 0;
+			imageIndex++;
+			if (imageIndex == maxIndex) {
+				imageIndex = 0;
+			}
+		}
+		
+	}
+	
+	public void update() {
+		if (!Game.isAttackMode()) {
+			moveAStar();
+		}
+		checkIfAttack();
+		checkLife();
+	}
+	
+	public void render(Graphics graphics) {
+		
+		if (!Game.isAttackMode()) {
+			regularAnimation(graphics);
+		} else {
+			vulnerableAnimation(graphics);
+		}
 	}
 	
 }

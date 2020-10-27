@@ -50,9 +50,14 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	
 	private static String gameState = "NORMAL";
 	
+	private static boolean isAttackMode = false;
+	private static boolean blinkStateOn = false;
+	
 	private static int level = 1;
 	private static int fruitCountTotal = 0;
 	private static int fruitCount = 0;
+	
+	private int attackModeFrames = 0, maxAttackModeFrames = 300, attackModeEndingFrames = 200;
 
 	public Game() {
 		
@@ -76,6 +81,18 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	
 	public static void incrementFruitCount() {
 		fruitCount++;
+	}
+	
+	public static boolean isAttackMode() {
+		return Game.isAttackMode;
+	}
+	
+	public static void attackModeOn() {
+		Game.isAttackMode = true;
+	}
+	
+	public static boolean isBlankState() {
+		return Game.blinkStateOn;
 	}
 	
 	public static void main(String[] args) {
@@ -111,11 +128,27 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		}
 	}
 	
+	private void attackModeTimer() {
+			attackModeFrames++;
+			if (attackModeFrames == maxAttackModeFrames) {
+				attackModeFrames = 0;
+				isAttackMode = false;
+				blinkStateOn = false;
+			}
+			
+			if (attackModeFrames == attackModeEndingFrames) {
+				blinkStateOn = true;
+			}
+	}
+	
 	private void update() {
 		switch (Game.gameState) {
 		case "NORMAL":
 			for (Entity entity : entities) {
 				entity.update();
+			}
+			if (isAttackMode) {
+				attackModeTimer();
 			}
 			entities.removeAll(toRemove);
 			enemies.removeAll(toRemove);

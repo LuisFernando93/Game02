@@ -116,6 +116,7 @@ public class Player extends Entity {
 			if (entity instanceof PowerUp) {
 				if (Entity.isColliding(entity, Game.player)) {
 					//come pitaya
+					Game.attackModeOn();
 					Game.toRemove.add(entity);
 					return;
 				}
