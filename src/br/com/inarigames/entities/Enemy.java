@@ -118,6 +118,7 @@ public class Enemy extends Entity {
 			} else {
 				//atacar
 				System.out.println("atacar");
+				Game.player.lifeDown();
 			}
 			
 		}
@@ -147,7 +148,7 @@ public class Enemy extends Entity {
 			graphics.drawImage(vulnerableEnemy[imageIndex], Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
 		} else graphics.drawImage(vulnerableEnemyWhite[imageIndex], Camera.offsetX(this.getX()), Camera.offsetY(this.getY()), null);
 		
-		if (Game.isBlankState()) {
+		if (Game.isBlinkState()) {
 			blinkFrames++;
 			if (blinkFrames == maxBlinkFrames) {
 				blinkFrames = 0;
@@ -156,7 +157,7 @@ public class Enemy extends Entity {
 				} else vulnerableWhite = false;
 				
 			}
-		}
+		} else vulnerableWhite = false;
 		frames++;
 		if (frames == maxFrames) {
 			frames = 0;

@@ -48,7 +48,10 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	public static List<Entity> toRemove = new ArrayList<Entity>();
 	public static Spritesheet spritesheet =  new Spritesheet("/spritesheet.png");
 	
-	private static String gameState = "NORMAL";
+	private static String gameState = "START";
+	private GameOver gameOver;
+	private Start start;
+	private Victory victory;
 	
 	private static boolean isAttackMode = false;
 	private static boolean blinkStateOn = false;
@@ -57,7 +60,7 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	private static int fruitCountTotal = 0;
 	private static int fruitCount = 0;
 	
-	private int attackModeFrames = 0, maxAttackModeFrames = 300, attackModeEndingFrames = 200;
+	private static int attackModeFrames = 0, maxAttackModeFrames = 300, attackModeEndingFrames = 200;
 
 	public Game() {
 		
@@ -73,6 +76,9 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		entities.add(player);
 		random = new Random();
 		world = new World("/level" + level + ".png");
+		start = new Start();
+		victory = new Victory();
+		gameOver = new GameOver();
 	}
 	
 	public static void incrementFruitCountTotal() {
@@ -91,7 +97,15 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		Game.isAttackMode = true;
 	}
 	
-	public static boolean isBlankState() {
+	public static void setAttackModeFrames(int attackModeFrames) {
+		Game.attackModeFrames = attackModeFrames;
+	}
+	
+	public static void setGameState(String gameState) {
+		Game.gameState = gameState;
+	}
+	
+	public static boolean isBlinkState() {
 		return Game.blinkStateOn;
 	}
 	
@@ -128,6 +142,21 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		}
 	}
 	
+	public static void newGame() {
+		
+		Game.fruitCount = 0;
+		Game.fruitCountTotal = 0;
+		World.newWorld("level" + level + ".png");
+		return;
+		
+	}
+	
+	public static void closeGame() {
+		frame.setVisible(false);
+		frame.dispose();
+		System.exit(0);
+	}
+	
 	private void attackModeTimer() {
 			attackModeFrames++;
 			if (attackModeFrames == maxAttackModeFrames) {
@@ -136,13 +165,26 @@ public class Game extends Canvas implements Runnable, KeyListener {
 				blinkStateOn = false;
 			}
 			
-			if (attackModeFrames == attackModeEndingFrames) {
+			if (attackModeFrames >= attackModeEndingFrames) {
 				blinkStateOn = true;
+			} else if(attackModeFrames < attackModeEndingFrames) {
+				blinkStateOn = false;
 			}
+	}
+	
+	private void checkVictory() {
+		if (fruitCount == fruitCountTotal) {
+			Game.gameState = "VICTORY";
+		}
 	}
 	
 	private void update() {
 		switch (Game.gameState) {
+		
+		case "START":
+			start.update();
+			break;
+		
 		case "NORMAL":
 			for (Entity entity : entities) {
 				entity.update();
@@ -153,8 +195,17 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			entities.removeAll(toRemove);
 			enemies.removeAll(toRemove);
 			toRemove.clear();
+			checkVictory();
 			break;
-
+			
+		case "GAME OVER":
+			gameOver.update();
+			break;
+			
+		case "VICTORY":
+			victory.update();
+			break;
+			
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + Game.gameState);
 		}
@@ -187,6 +238,23 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		graphics.setFont(new Font("arial", Font.BOLD, 18));
 		String score = "Morangos: " + fruitCount + "/" + fruitCountTotal;
 		graphics.drawString(score, 30, 30);
+		
+		switch (Game.gameState) {
+		
+		case "START":
+			start.render(graphics);
+			break;
+		
+		case "GAME OVER":
+			gameOver.render(graphics);
+			break;
+			
+		case "VICTORY":
+			victory.render(graphics);
+			break;
+			
+		}
+			
 		bs.show();
 	}
 
@@ -251,6 +319,13 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {
 		switch (Game.gameState) {
+		
+		case "START":
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				start.setStart(true);
+			}
+			break;
+		
 		case "NORMAL":
 			if (e.getKeyCode() == KeyEvent.VK_UP ||
 					e.getKeyCode() == KeyEvent.VK_W) {
@@ -269,6 +344,19 @@ public class Game extends Canvas implements Runnable, KeyListener {
 				player.setLeft(false);
 			}
 			break;
+		
+		case "GAME OVER":
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				gameOver.setRestart(true);
+			}
+			break;
+		
+		case "VICTORY":
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				victory.setStart(true);
+			}
+			break;
+			
 		}
 	}
 	

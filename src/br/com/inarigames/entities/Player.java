@@ -10,6 +10,7 @@ import br.com.inarigames.world.World;
 public class Player extends Entity {
 	
 	private int speed = 2;
+	private int life = 1;
 	
 	private int dir;
 	private int right_dir = 1, left_dir = 2, up_dir = 3, down_dir = 4;
@@ -48,6 +49,10 @@ public class Player extends Entity {
 	
 	public void setDown(boolean down) {
 		this.down = down;
+	}
+	
+	public void lifeDown() {
+		this.life--;
 	}
 	
 	private void movePlayer() {
@@ -117,11 +122,19 @@ public class Player extends Entity {
 				if (Entity.isColliding(entity, Game.player)) {
 					//come pitaya
 					Game.attackModeOn();
+					Game.setAttackModeFrames(0);
 					Game.toRemove.add(entity);
 					return;
 				}
 			}
 			
+		}
+	}
+	
+	private void checkLife() {
+		if (life <= 0) {
+			Game.toRemove.add(this);
+			Game.setGameState("GAME OVER");
 		}
 	}
 	
@@ -135,6 +148,7 @@ public class Player extends Entity {
 	public void update() {
 		movePlayer();
 		checkIfEatFruit();
+		checkLife();
 		updateCamera();
 	}
 	
